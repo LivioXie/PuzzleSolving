@@ -292,10 +292,11 @@ def pygame_interface(generator):
         # Render the current step
         render_puzzle(fig, solution_path[step_index])
         canvas.draw()
-        raw_data = canvas.tostring_rgb()
-        size = canvas.get_width_height()
+        width, height = canvas.get_width_height()
+        raw_data = np.frombuffer(canvas.buffer_rgba(), dtype=np.uint8).reshape((height, width, 4))
+        rgb_data = raw_data[:, :, :3].copy(order='C')  # Drop alpha channel for pygame
 
-        pygame_surface = pygame.image.fromstring(raw_data, size, "RGB")
+        pygame_surface = pygame.image.frombuffer(rgb_data.tobytes(), (width, height), "RGB")
         screen.blit(pygame_surface, (0, 0))
 
         # Display instructions
